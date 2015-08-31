@@ -12,10 +12,14 @@ import httplib2
 import json
 from flask import make_response, Response, abort
 import requests
+from werkzeug import secure_filename
+import os
 
+UPLOAD_FOLDER = 'static/'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)
-
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Restaurant Menu Application"
@@ -29,7 +33,13 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 # Create anti-forgery state token
+
+
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -253,6 +263,7 @@ def gdisconnect():
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
+
     if result['status'] != '200':
         # For whatever reason, the given token was invalid.
         response = make_response(
@@ -337,9 +348,17 @@ def newRestaurant():
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
+        file = request.files['file']
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
         newRestaurant = Restaurant(
-            name=request.form['name'], user_id=login_session['user_id'])
+            name=request.form['name'], user_id=login_session['user_id'],
+            picture=filename)
         session.add(newRestaurant)
+
         flash('New Restaurant %s Successfully Created' % newRestaurant.name)
         session.commit()
         return redirect(url_for('showRestaurants'))
@@ -363,8 +382,14 @@ def editRestaurant(restaurant_id):
     if request.method == 'POST':
         if request.form['name']:
             editedRestaurant.name = request.form['name']
-            flash('Restaurant Successfully Edited %s' % editedRestaurant.name)
-            return redirect(url_for('showRestaurants'))
+        file = request.files['file']
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            editedRestaurant.picture = filename
+        flash('Restaurant Successfully Edited %s' % editedRestaurant.name)
+        return redirect(url_for('showRestaurants'))
     else:
         return render_template('editRestaurant.html',
                                restaurant=editedRestaurant)
@@ -435,17 +460,24 @@ def newMenuItem(restaurant_id):
           restaurant. Please create your own restaurant\
            in order to add items.');}</script><body\
             onload='myFunction()''>"
-        if request.method == 'POST':
-            newItem = MenuItem(name=request.form['name'],
-                               description=request.form['description'],
-                               price=request.form['price'],
-                               course=request.form['course'],
-                               restaurant_id=restaurant_id,
-                               user_id=restaurant.user_id)
-            session.add(newItem)
-            session.commit()
-            flash('New Menu %s Item Successfully Created' % (newItem.name))
-            return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+    if request.method == 'POST':
+        file = request.files['file']
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        newItem = MenuItem(name=request.form['name'],
+                           description=request.form['description'],
+                           price=request.form['price'],
+                           course=request.form['course'],
+                           restaurant_id=restaurant_id,
+                           picture=filename,
+                           user_id=restaurant.user_id)
+        session.add(newItem)
+        session.commit()
+        flash('New Menu %s Item Successfully Created' % (newItem.name))
+        return redirect(url_for('showMenu', restaurant_id=restaurant_id))
     else:
         return render_template('newmenuitem.html', restaurant_id=restaurant_id)
 
@@ -473,6 +505,12 @@ def editMenuItem(restaurant_id, menu_id):
             editedItem.price = request.form['price']
         if request.form['course']:
             editedItem.course = request.form['course']
+        file = request.files['file']
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            editedItem.picture = filename
         session.add(editedItem)
         session.commit()
         flash('Menu Item Successfully Edited')

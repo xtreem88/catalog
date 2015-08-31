@@ -6,13 +6,19 @@
 	</div>
 	<div class="row banner menu">
 		<div class="col-md-11 col-md-offset-1 padding-none">
+			
+				
+				
+			
 			<h1>{{ restaurant.name }}
 			<figure class="creator">
-				<img src="{{ url_for('static', filename='blank_user.gif') }}">
-				<figcaption>Menu creator's name goes here</figcaption>
+				<img src="{{ creator.picture}}">
+				<figcaption>{{ creator.name }}</figcaption>
 			</figure>
 			</h1>
-
+			{% if restaurant.picture %}
+			<img src="{{ url_for('static', filename=restaurant.picture) }}" width='200px'>
+			{% endif %}
 		</div>
 	</div>
 
@@ -59,6 +65,9 @@
 					{% for i in items %}
 						{% if i.course == 'Appetizer' %}
 							<div class="menu-item">
+								{% if restaurant.picture %}
+									<img src="{{ url_for('static', filename=i.picture) }}" width='200px'>
+								{% endif %}
 								<h3>{{i.name}}</h3>
 								<p>{{i.description}}</p>
 								<p class="menu-price">{{i.price}}</p>
@@ -73,6 +82,9 @@
 					{% for i in items %}
 						{% if i.course == 'Entree' %}
 						<div class="menu-item">
+							{% if restaurant.picture %}
+									<img src="{{ url_for('static', filename=i.picture) }}" width='200px'>
+							{% endif %}
 							<h3>{{i.name}}</h3>
 							<p>{{i.description}}</p>
 							<p class="menu-price">{{i.price}}</p>
@@ -87,6 +99,9 @@
 					{% for i in items %}
 						{% if i.course == 'Dessert' %}
 						<div class="menu-item">
+							{% if restaurant.picture %}
+									<img src="{{ url_for('static', filename=i.picture) }}" width='200px'>
+							{% endif %}
 							<h3>{{i.name}}</h3>
 							<p>{{i.description}}</p>
 							<p class="menu-price">{{i.price}}</p>
@@ -99,6 +114,9 @@
 					{% for i in items %}
 						{% if i.course == 'Beverage' %}
 						<div class="menu-item">
+							{% if restaurant.picture %}
+									<img src="{{ url_for('static', filename=i.picture) }}" width='200px'>
+							{% endif %}
 							<h3>{{i.name}}</h3>
 							<p>{{i.description}}</p>
 							<p class="menu-price">{{i.price}}</p>
