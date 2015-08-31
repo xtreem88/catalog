@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+    
+    <item>
+        <id>{{item.id}}</id>
+        <name>{{item.name}}</name>
+        <description>{{item.description}}</description>
+        <price>{{item.price}}</price>
+        <course>{{item.course}}</course>
+    </item>
+   
+</menu>

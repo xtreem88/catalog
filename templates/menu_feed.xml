@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<restaurant>
+    {% for item in items %}
+    <menu>
+        <id>{{item.id}}</id>
+        <name>{{item.name}}</name>
+        <description>{{item.description}}</description>
+        <price>{{item.price}}</price>
+        <course>{{item.course}}</course>
+    </menu>
+    {% endfor %}
+</restaurant>
