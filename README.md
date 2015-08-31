@@ -7,19 +7,19 @@ This is  an application that provides a list of items within a variety of catego
 
 ### 2. SQLite
 
-### 3. flask
+### 3. flask 0.9
 
-### 4. sqlalchemy
+### 4. sqlalchemy 0.8.4
 
-### 5. httplib2
+### 5. httplib2 0.9.1
 
 ### 6. oauth2client
 
-### 7. requests
+### 7. requests 2.7.0
 
-### 8. werkzeug
+### 8. werkzeug 0.8.3
 
-### 9. Flask-Login
+### 9. Flask-Login 0.1.3
 
 
 ## Installation

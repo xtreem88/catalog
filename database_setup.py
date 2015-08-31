@@ -4,6 +4,10 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 
 Base = declarative_base()
+"""
+Restaurant menu database module: contains table\
+ definitions and serialize function for JSON class
+"""
 
 
 class User(Base):
@@ -42,7 +46,8 @@ class MenuItem(Base):
     price = Column(String(8))
     course = Column(String(250))
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
-    restaurant = relationship(Restaurant)
+    restaurant = relationship(
+        Restaurant, cascade="all, delete-orphan", single_parent=True)
     picture = Column(String(250))
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
