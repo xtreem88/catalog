@@ -1,3 +1,6 @@
+# Creates a restaurant menu catalog
+# with user authentication and authorization
+#
 from flask import Flask, render_template, request
 from flask import redirect, jsonify, url_for, flash
 from sqlalchemy import create_engine, asc
@@ -14,8 +17,9 @@ from flask import make_response, Response, abort
 import requests
 from werkzeug import secure_filename
 import os
-
+# set upload folder
 UPLOAD_FOLDER = 'static/'
+# set allowed extensions
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)
@@ -32,6 +36,8 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# Checks if a file type is allowed
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -47,6 +53,8 @@ def showLogin():
     login_session['state'] = state
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
+
+# Login with Facebook
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -118,6 +126,8 @@ def fbconnect():
     flash("Now logged in as %s" % login_session['username'])
     return output
 
+# Logout with Facebook
+
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
@@ -129,6 +139,8 @@ def fbdisconnect():
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
+
+# Login with Google
 
 
 @app.route('/gconnect', methods=['POST'])
@@ -271,14 +283,7 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-
-# JSON APIs to view Restaurant Information
-@app.route('/restaurant/<int:restaurant_id>/menu/JSON')
-def restaurantMenuJSON(restaurant_id):
-    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    items = session.query(MenuItem).filter_by(
-        restaurant_id=restaurant_id).all()
-    return jsonify(MenuItems=[i.serialize for i in items])
+# XML APIs to view Restaurant Information
 
 
 @app.route('/restaurant/XML')
@@ -315,6 +320,16 @@ def menuItemXML(restaurant_id, menu_id):
     response.headers["Content-Type"] = "application/xml"
 
     return response
+
+# JSON APIs to view Restaurant Information
+
+
+@app.route('/restaurant/<int:restaurant_id>/menu/JSON')
+def restaurantMenuJSON(restaurant_id):
+    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    items = session.query(MenuItem).filter_by(
+        restaurant_id=restaurant_id).all()
+    return jsonify(MenuItems=[i.serialize for i in items])
 
 
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/JSON')
@@ -393,6 +408,8 @@ def editRestaurant(restaurant_id):
     else:
         return render_template('editRestaurant.html',
                                restaurant=editedRestaurant)
+
+# Generate security token
 
 
 def generate_csrf_token():
